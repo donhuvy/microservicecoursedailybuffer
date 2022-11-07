@@ -4,6 +4,9 @@ import com.microservice.apigateway.exception.JwtTokenMalformedException;
 import com.microservice.apigateway.exception.JwtTokenMissingException;
 import com.microservice.apigateway.util.JwtUtils;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -47,15 +50,22 @@ public class JwtAuthenticationFilter implements GatewayFilter {
                 return response.setComplete();
             }
 
-            final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
+            final String authorization = request.getHeaders().getOrEmpty("Authorization").get(0);
+            final String token = authorization.replace("Bearer ", "");
 
             log.info("JwtAuthenticationFilter | filter | token : " + token);
 
             try {
                 jwtUtils.validateJwtToken(token);
-            } catch (JwtTokenMalformedException | JwtTokenMissingException e) {
-                // e.printStackTrace();
+            } catch (ExpiredJwtException e) {
+                log.info("JwtAuthenticationFilter | filter | ExpiredJwtException | error : " + e.getMessage());
+                ServerHttpResponse response = exchange.getResponse();
+                response.setStatusCode(HttpStatus.UNAUTHORIZED);
 
+                return response.setComplete();
+
+            } catch (IllegalArgumentException | JwtTokenMalformedException | JwtTokenMissingException
+                     | SignatureException | UnsupportedJwtException e) {
                 ServerHttpResponse response = exchange.getResponse();
                 response.setStatusCode(HttpStatus.BAD_REQUEST);
 
