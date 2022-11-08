@@ -68,6 +68,6 @@ logging:
     org.springframework: DEBUG
 
 jwt:
-  secret: mySecretKey
+  secret: mySecretKey11111111111111111111111111111111
   expireMs: 60000
   refrEshexpireMs: 120000
