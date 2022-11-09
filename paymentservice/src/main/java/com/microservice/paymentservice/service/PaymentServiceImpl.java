@@ -1,5 +1,6 @@
 package com.microservice.paymentservice.service;
 
+import com.microservice.paymentservice.exception.PaymentServiceCustomException;
 import com.microservice.paymentservice.model.TransactionDetails;
 import com.microservice.paymentservice.payload.PaymentRequest;
 import com.microservice.paymentservice.payload.PaymentResponse;
@@ -35,7 +36,7 @@ public class PaymentServiceImpl implements PaymentService{
                 .amount(paymentRequest.getAmount())
                 .build();
 
-        transactionDetailsRepository.save(transactionDetails);
+        transactionDetails = transactionDetailsRepository.save(transactionDetails);
 
         log.info("Transaction Completed with Id: {}", transactionDetails.getId());
 
@@ -43,14 +44,17 @@ public class PaymentServiceImpl implements PaymentService{
     }
 
     @Override
-    public PaymentResponse getPaymentDetailsByOrderId(String orderId) {
+    public PaymentResponse getPaymentDetailsByOrderId(long orderId) {
 
         log.info("PaymentServiceImpl | getPaymentDetailsByOrderId is called");
 
         log.info("PaymentServiceImpl | getPaymentDetailsByOrderId | Getting payment details for the Order Id: {}", orderId);
 
         TransactionDetails transactionDetails
-                = transactionDetailsRepository.findByOrderId(Long.valueOf(orderId));
+                = transactionDetailsRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new PaymentServiceCustomException(
+                        "TransactionDetails with given id not found",
+                        "TRANSACTION_NOT_FOUND"));
 
         PaymentResponse paymentResponse
                 = PaymentResponse.builder()

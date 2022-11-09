@@ -6,5 +6,5 @@ import com.microservice.paymentservice.payload.PaymentResponse;
 public interface PaymentService {
     long doPayment(PaymentRequest paymentRequest);
 
-    PaymentResponse getPaymentDetailsByOrderId(String orderId);
+    PaymentResponse getPaymentDetailsByOrderId(long orderId);
 }
