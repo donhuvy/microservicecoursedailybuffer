@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +18,7 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<Long> addProduct(@RequestBody ProductRequest productRequest) {
 
@@ -28,6 +30,7 @@ public class ProductController {
         return new ResponseEntity<>(productId, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') || hasAuthority('ROLE_USER')")
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable("id") long productId) {
 
