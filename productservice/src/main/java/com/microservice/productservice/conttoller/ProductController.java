@@ -43,6 +43,7 @@ public class ProductController {
         return new ResponseEntity<>(productResponse, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') || hasAuthority('ROLE_USER')")
     @PutMapping("/reduceQuantity/{id}")
     public ResponseEntity<Void> reduceQuantity(
             @PathVariable("id") long productId,
@@ -56,5 +57,11 @@ public class ProductController {
 
         productService.reduceQuantity(productId,quantity);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @DeleteMapping("/{id}")
+    public void deleteProductById(@PathVariable("id") long productId) {
+        productService.deleteProductById(productId);
     }
 }

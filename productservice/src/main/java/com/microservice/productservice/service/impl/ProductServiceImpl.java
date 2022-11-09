@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
                 .price(productRequest.getPrice())
                 .build();
 
-        productRepository.save(product);
+        product = productRepository.save(product);
 
         log.info("ProductServiceImpl | addProduct | Product Created");
         log.info("ProductServiceImpl | addProduct | Product Id : " + product.getProductId());
@@ -46,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
         Product product
                 = productRepository.findById(productId)
                 .orElseThrow(
-                        () -> new ProductServiceCustomException("Product with given id not found","PRODUCT_NOT_FOUND"));
+                        () -> new ProductServiceCustomException("Product with given Id not found","PRODUCT_NOT_FOUND"));
 
         ProductResponse productResponse
                 = new ProductResponse();
@@ -80,5 +80,20 @@ public class ProductServiceImpl implements ProductService {
         product.setQuantity(product.getQuantity() - quantity);
         productRepository.save(product);
         log.info("Product Quantity updated Successfully");
+    }
+
+    @Override
+    public void deleteProductById(long productId) {
+        log.info("Product id: {}", productId);
+
+        if (!productRepository.existsById(productId)) {
+            log.info("Im in this loop {}", !productRepository.existsById(productId));
+            throw new ProductServiceCustomException(
+                    "Product with given with Id: " + productId + " not found:",
+                    "PRODUCT_NOT_FOUND");
+        }
+        log.info("Deleting Product with id: {}", productId);
+        productRepository.deleteById(productId);
+
     }
 }
