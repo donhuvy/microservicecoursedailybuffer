@@ -143,7 +143,7 @@ public class OrderControllerTest {
         OrderRequest orderRequest = getMockOrderRequest();
         MvcResult mvcResult
                 = mockMvc.perform(MockMvcRequestBuilders.post("/order/placeOrder")
-                        .with(jwt().authorities(new SimpleGrantedAuthority("USER")))
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER")))
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(orderRequest))
                 ).andExpect(MockMvcResultMatchers.status().isOk())
