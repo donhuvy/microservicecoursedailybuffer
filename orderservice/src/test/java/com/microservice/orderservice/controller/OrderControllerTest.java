@@ -26,6 +26,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -46,6 +48,7 @@ import static org.springframework.util.StreamUtils.copyToString;
 @EnableConfigurationProperties
 @AutoConfigureMockMvc
 @ContextConfiguration(classes = {OrderServiceConfig.class})
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @ActiveProfiles
 public class OrderControllerTest {
 
@@ -127,6 +130,7 @@ public class OrderControllerTest {
 
     @Test
     @DisplayName("Place Order -- Success Scenario")
+    @WithMockUser(roles="USER")
     void test_When_placeOrder_DoPayment_Success() throws Exception {
 
         OrderRequest orderRequest = getMockOrderRequest();
