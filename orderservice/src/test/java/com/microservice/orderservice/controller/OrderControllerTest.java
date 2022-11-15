@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.microservice.orderservice.JwtUtils;
 import com.microservice.orderservice.OrderServiceConfig;
 import com.microservice.orderservice.model.Order;
 import com.microservice.orderservice.payload.request.OrderRequest;
@@ -12,6 +13,9 @@ import com.microservice.orderservice.payload.response.OrderResponse;
 import com.microservice.orderservice.repository.OrderRepository;
 import com.microservice.orderservice.service.OrderService;
 import com.microservice.orderservice.utils.PaymentMode;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,6 +70,8 @@ public class OrderControllerTest {
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+    @Autowired
+    JwtUtils jwtUtils;
 
     @BeforeEach
     void setup() throws IOException {
@@ -124,9 +130,12 @@ public class OrderControllerTest {
     void test_When_placeOrder_DoPayment_Success() throws Exception {
 
         OrderRequest orderRequest = getMockOrderRequest();
+        String jwt = getJWTTokenForRoleUser();
+
         MvcResult mvcResult
                 = mockMvc.perform(MockMvcRequestBuilders.post("/order/placeorder")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .header("Authorization", "Bearer " + jwt)
                         .content(objectMapper.writeValueAsString(orderRequest)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
@@ -198,6 +207,34 @@ public class OrderControllerTest {
                 .orderId(order.getId())
                 .build();
         return objectMapper.writeValueAsString(orderResponse);
+    }
+
+    private String getJWTTokenForRoleUser(){
+
+        var loginRequest = new LoginRequest("User1","user1");
+
+        String jwt = jwtUtils.generateJwtToken(loginRequest.getUsername());
+
+        return jwt;
+    }
+
+    private String getJWTTokenForRoleAdmin(){
+
+        var loginRequest = new LoginRequest("","");
+
+        String jwt = jwtUtils.generateJwtToken(loginRequest.getUsername());
+
+        return jwt;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class LoginRequest {
+
+        private String username;
+        private String password;
+
     }
 
 }
