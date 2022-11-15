@@ -48,7 +48,6 @@ import static org.springframework.util.StreamUtils.copyToString;
 @EnableConfigurationProperties
 @AutoConfigureMockMvc
 @ContextConfiguration(classes = {OrderServiceConfig.class})
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 @ActiveProfiles
 public class OrderControllerTest {
 
@@ -130,7 +129,7 @@ public class OrderControllerTest {
 
     @Test
     @DisplayName("Place Order -- Success Scenario")
-    @WithMockUser(roles="USER")
+    @WithMockUser(username = "User1", authorities = { "ROLE_USER" })
     void test_When_placeOrder_DoPayment_Success() throws Exception {
 
         OrderRequest orderRequest = getMockOrderRequest();
@@ -157,9 +156,34 @@ public class OrderControllerTest {
     }
 
     @Test
+    @DisplayName("Place Order -- Failure Scenario")
+    @WithMockUser(username = "Admin", authorities = { "ROLE_ADMIN" })
+    public void test_When_placeOrder_WithWrongAccess_thenThrow_403() throws Exception {
+
+
+        OrderRequest orderRequest = getMockOrderRequest();
+        String jwt = getJWTTokenForRoleAdmin();
+
+        MvcResult mvcResult
+                = mockMvc.perform(MockMvcRequestBuilders.post("/order/placeorder")
+                        .header("Authorization", "Bearer " + jwt)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(orderRequest)))
+                .andExpect(MockMvcResultMatchers.status().isForbidden())
+                .andReturn();
+
+    }
+
+
+    @Test
+    @WithMockUser(username = "Admin", authorities = { "ROLE_ADMIN" })
     public void test_WhenGetOrder_Success() throws Exception {
+
+        String jwt = getJWTTokenForRoleUser();
+
         MvcResult mvcResult
                 = mockMvc.perform(MockMvcRequestBuilders.get("/order/1")
+                        .header("Authorization", "Bearer " + jwt)
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
@@ -172,9 +196,14 @@ public class OrderControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "Admin", authorities = { "ROLE_ADMIN" })
     public void testWhen_GetOrder_Order_Not_Found() throws Exception {
+
+        String jwt = getJWTTokenForRoleAdmin();
+
         MvcResult mvcResult
                 = mockMvc.perform(MockMvcRequestBuilders.get("/order/8")
+                        .header("Authorization", "Bearer " + jwt)
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andReturn();
@@ -224,7 +253,7 @@ public class OrderControllerTest {
 
     private String getJWTTokenForRoleAdmin(){
 
-        var loginRequest = new LoginRequest("","");
+        var loginRequest = new LoginRequest("Admin","admin");
 
         String jwt = jwtUtils.generateJwtToken(loginRequest.getUsername());
 
