@@ -26,7 +26,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,7 +47,7 @@ import static org.springframework.util.StreamUtils.copyToString;
 @EnableConfigurationProperties
 @AutoConfigureMockMvc
 @ContextConfiguration(classes = {OrderServiceConfig.class})
-@ActiveProfiles
+@ActiveProfiles("test")
 public class OrderControllerTest {
 
     @RegisterExtension
@@ -202,7 +201,7 @@ public class OrderControllerTest {
         String jwt = getJWTTokenForRoleAdmin();
 
         MvcResult mvcResult
-                = mockMvc.perform(MockMvcRequestBuilders.get("/order/8")
+                = mockMvc.perform(MockMvcRequestBuilders.get("/order/4")
                         .header("Authorization", "Bearer " + jwt)
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
