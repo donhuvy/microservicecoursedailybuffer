@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class Role extends IdBasedEntity implements Serializable {
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(length = 20, unique = true)
     private ERole name;
 
     public Role(ERole name){

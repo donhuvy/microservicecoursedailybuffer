@@ -14,8 +14,12 @@ import java.util.Set;
 @NoArgsConstructor
 public class User extends IdBasedEntity implements Serializable {
 
+    @Column(unique = true, nullable = false)
     private String username;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
     private String password;
 
     @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)

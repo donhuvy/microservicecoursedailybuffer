@@ -75,6 +75,7 @@ public class AuthController {
                 switch (role) {
                     case "ROLE_ADMIN":
                         roles.add(new Role(ERole.ROLE_ADMIN));
+                        break;
                     default:
                         roles.add(new Role(ERole.ROLE_USER));
                 }

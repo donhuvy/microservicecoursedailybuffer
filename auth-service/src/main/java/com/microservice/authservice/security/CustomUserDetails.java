@@ -2,6 +2,7 @@ package com.microservice.authservice.security;
 
 import com.microservice.authservice.model.Role;
 import com.microservice.authservice.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +23,6 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<Role> roles = user.getRoles();
-
         List<SimpleGrantedAuthority> authories = new ArrayList<>();
 
         for (Role role : roles) {
