@@ -128,7 +128,7 @@ public class OrderControllerTest {
 
     @Test
     @DisplayName("Place Order -- Success Scenario")
-    @WithMockUser(username = "User1", authorities = { "ROLE_USER" })
+    @WithMockUser(username = "User", authorities = { "ROLE_USER" })
     void test_When_placeOrder_DoPayment_Success() throws Exception {
 
         OrderRequest orderRequest = getMockOrderRequest();
@@ -175,7 +175,7 @@ public class OrderControllerTest {
 
 
     @Test
-    @WithMockUser(username = "Admin", authorities = { "ROLE_ADMIN" })
+    //@WithMockUser(username = "Admin", authorities = { "ROLE_ADMIN" })
     public void test_WhenGetOrder_Success() throws Exception {
 
         String jwt = getJWTTokenForRoleUser();
@@ -195,7 +195,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "Admin", authorities = { "ROLE_ADMIN" })
+    //@WithMockUser(username = "Admin", authorities = { "ROLE_ADMIN" })
     public void testWhen_GetOrder_Order_Not_Found() throws Exception {
 
         String jwt = getJWTTokenForRoleAdmin();
