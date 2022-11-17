@@ -5,11 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.microservice.productservice.JwtUtils;
 import com.microservice.productservice.entity.Product;
 import com.microservice.productservice.payload.request.ProductRequest;
 import com.microservice.productservice.payload.response.ProductResponse;
 import com.microservice.productservice.repository.ProductRepository;
 import com.microservice.productservice.service.ProductService;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -33,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest({"server.port=0"})
 @AutoConfigureMockMvc
 @EnableConfigurationProperties
-@ActiveProfiles
+@ActiveProfiles("test")
 public class ProductControllerTest {
 
     @Autowired
@@ -54,6 +58,9 @@ public class ProductControllerTest {
                             .port(8080)
             )
             .build();
+
+    @Autowired
+    JwtUtils jwtUtils;
 
     private ObjectMapper objectMapper
             = new ObjectMapper()
@@ -212,5 +219,33 @@ public class ProductControllerTest {
                 .build();
 
         return objectMapper.writeValueAsString(productResponse);
+    }
+
+    private String getJWTTokenForRoleUser(){
+
+        var loginRequest = new LoginRequest("User1","user1");
+
+        String jwt = jwtUtils.generateJwtToken(loginRequest.getUsername());
+
+        return jwt;
+    }
+
+    private String getJWTTokenForRoleAdmin(){
+
+        var loginRequest = new LoginRequest("","");
+
+        String jwt = jwtUtils.generateJwtToken(loginRequest.getUsername());
+
+        return jwt;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class LoginRequest {
+
+        private String username;
+        private String password;
+
     }
 }
