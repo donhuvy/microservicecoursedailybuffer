@@ -5,12 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.microservice.paymentservice.JwtUtils;
 import com.microservice.paymentservice.model.TransactionDetails;
 import com.microservice.paymentservice.payload.PaymentRequest;
 import com.microservice.paymentservice.payload.PaymentResponse;
 import com.microservice.paymentservice.repository.TransactionDetailsRepository;
 import com.microservice.paymentservice.service.PaymentService;
 import com.microservice.paymentservice.utils.PaymentMode;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -34,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest({"server.port=0"})
 @AutoConfigureMockMvc
 @EnableConfigurationProperties
-@ActiveProfiles
+@ActiveProfiles("test")
 public class PaymentControllerTest {
 
     @RegisterExtension
@@ -61,6 +65,9 @@ public class PaymentControllerTest {
             .findAndRegisterModules()
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    @Autowired
+    JwtUtils jwtUtils;
 
     @Test
     void test_When_doPayment_isSuccess() throws Exception {
@@ -148,5 +155,33 @@ public class PaymentControllerTest {
                 .amount(transactionDetails.getAmount())
                 .build();
         return objectMapper.writeValueAsString(paymentResponse);
+    }
+
+    private String getJWTTokenForRoleUser(){
+
+        var loginRequest = new LoginRequest("User1","user1");
+
+        String jwt = jwtUtils.generateJwtToken(loginRequest.getUsername());
+
+        return jwt;
+    }
+
+    private String getJWTTokenForRoleAdmin(){
+
+        var loginRequest = new LoginRequest("","");
+
+        String jwt = jwtUtils.generateJwtToken(loginRequest.getUsername());
+
+        return jwt;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class LoginRequest {
+
+        private String username;
+        private String password;
+
     }
 }

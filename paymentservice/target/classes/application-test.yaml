@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:order
+    url: jdbc:h2:mem:payment
     username: sa
     password: password
     driverClassName: org.h2.Driver
