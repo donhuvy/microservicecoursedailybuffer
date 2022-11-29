@@ -100,7 +100,7 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String jwt = jwtUtils.generateJwtToken(userDetails);
+        String jwt = jwtUtils.generateJwtToken(userDetails.getUsername());
 
         List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
                 .collect(Collectors.toList());

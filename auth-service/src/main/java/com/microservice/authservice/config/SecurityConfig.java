@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .csrf().disable()
                 .cors().and()
                 .authorizeRequests(auth -> {
-                    auth.anyRequest().authenticated();
+                    auth.anyRequest().permitAll();
                 })
                 .formLogin().disable()
                 .httpBasic().disable()

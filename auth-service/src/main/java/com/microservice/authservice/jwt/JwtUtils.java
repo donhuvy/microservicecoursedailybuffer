@@ -1,12 +1,17 @@
 package com.microservice.authservice.jwt;
 
 import com.microservice.authservice.security.CustomUserDetails;
+import com.microservice.authservice.security.CustomUserDetailsService;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtils {
@@ -19,15 +24,43 @@ public class JwtUtils {
     @Value("${jwt.expireMs}")
     private int jwtExpirationMs;
 
-    public String generateJwtToken(CustomUserDetails userPrincipal) {
-        return generateTokenFromUsername(userPrincipal.getUsername());
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
+    public String generateJwtToken(String username) {
+        return generateTokenFromUsername(username);
     }
 
+    /*public String generateTokenFromUsername(CustomUserDetails userPrincipal) {
+
+        List<String> roles = userPrincipal.getAuthorities().stream().map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+
+        return Jwts.builder().setSubject(userPrincipal.getUsername()).claim("role-id", roles).setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
+    }*/
+
     public String generateTokenFromUsername(String username) {
+        UserDetails userDetails= customUserDetailsService.loadUserByUsername(username);
+        StringBuilder roles=new StringBuilder();
+        userDetails.getAuthorities().forEach(role->{
+            roles.append(role.getAuthority()+" ");
+        });
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuer(roles.toString())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
+    }
+
+    /*public String generateTokenFromUsername(String username) {
         return Jwts.builder().setSubject(username).setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
-    }
+    }*/
 
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
