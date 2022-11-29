@@ -15,6 +15,7 @@ import com.microservice.authservice.payload.response.MessageResponse;
 import com.microservice.authservice.payload.response.TokenRefreshResponse;
 import com.microservice.authservice.security.CustomUserDetails;
 import com.microservice.authservice.service.RefreshTokenService;
+import com.microservice.authservice.service.RoleService;
 import com.microservice.authservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,8 @@ import java.util.stream.Collectors;
 public class AuthController {
 
     private final UserService userService;
+
+    private final RoleService roleService;
 
     private final RefreshTokenService refreshTokenService;
 
@@ -74,14 +77,33 @@ public class AuthController {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "ROLE_ADMIN":
-                        roles.add(new Role(ERole.ROLE_ADMIN));
+                        Role adminRole = null;
+
+                        if(roleService.findByName(ERole.ROLE_ADMIN).isEmpty()){
+                            adminRole = new Role(ERole.ROLE_ADMIN);
+                        }else{
+                            adminRole = roleService.findByName(ERole.ROLE_ADMIN)
+                                    .orElseThrow(() -> new RoleException("Error: Admin Role is not found."));
+                        }
+
+                        roles.add(adminRole);
+
                         break;
                     default:
-                        roles.add(new Role(ERole.ROLE_USER));
+                        Role userRole = null;
+
+                        if(roleService.findByName(ERole.ROLE_USER).isEmpty()){
+                            userRole = new Role(ERole.ROLE_USER);
+                        }else{
+                            userRole = roleService.findByName(ERole.ROLE_USER)
+                                    .orElseThrow(() -> new RoleException("Error: User Role is not found."));
+                        }
+
+                        roles.add(userRole);
                 }
             });
         }else{
-            roles.add(new Role(ERole.ROLE_USER));
+            roleService.findByName(ERole.ROLE_USER).ifPresentOrElse(roles::add, () -> roles.add(new Role(ERole.ROLE_USER)));
         }
 
         user.setRoles(roles);
