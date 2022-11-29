@@ -31,7 +31,7 @@ public class OrderController {
         return new ResponseEntity<>(orderId, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('ROLE_USER') || hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponse> getOrderDetails(@PathVariable long orderId) {
 
@@ -44,5 +44,13 @@ public class OrderController {
 
         return new ResponseEntity<>(orderResponse,
                 HttpStatus.OK);
+    }
+
+
+    @GetMapping("/test-endpoint")
+    public ResponseEntity<String> debugme() {
+        String gas = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .map(g -> g.getAuthority()).collect(java.util.stream.Collectors.joining(","));
+        return ResponseEntity.ok(gas);
     }
 }

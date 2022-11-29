@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import com.microservice.orderservice.JwtUtils;
 import com.microservice.orderservice.OrderServiceConfig;
+import com.microservice.orderservice.jwt.JwtUtils;
 import com.microservice.orderservice.model.Order;
 import com.microservice.orderservice.payload.request.OrderRequest;
 import com.microservice.orderservice.payload.response.OrderResponse;
@@ -245,7 +245,7 @@ public class OrderControllerTest {
 
         var loginRequest = new LoginRequest("User1","user1");
 
-        String jwt = jwtUtils.generateJwtToken(loginRequest.getUsername());
+        String jwt = jwtUtils.getUserNameFromJwtToken(loginRequest.getUsername());
 
         return jwt;
     }
@@ -254,7 +254,7 @@ public class OrderControllerTest {
 
         var loginRequest = new LoginRequest("Admin","admin");
 
-        String jwt = jwtUtils.generateJwtToken(loginRequest.getUsername());
+        String jwt = jwtUtils.getUserNameFromJwtToken(loginRequest.getUsername());
 
         return jwt;
     }
